@@ -61,6 +61,8 @@ public class User implements UserDetails {
         this.name = name;
     }
 
+
+    //用户验证相关定义
     @Transient
     private List<GrantedAuthority> authorityList;
 
@@ -76,6 +78,8 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorityList;
     }
+
+
 
     public String getPassword() {
         return password;

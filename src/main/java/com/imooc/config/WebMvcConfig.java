@@ -43,7 +43,8 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Application
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
         //赋一下spring的上下文
         templateResolver.setApplicationContext(this.applicationContext);
-        //templateResolver.setCharacterEncoding("UTF-8");
+        //防止模板乱码
+        templateResolver.setCharacterEncoding("UTF-8");
         //templateResolver.setCacheable(thymeleafCacheEnable);
         return templateResolver;
     }
@@ -60,8 +61,9 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Application
         templateEngine.setEnableSpringELCompiler(true);
 
         // 支持SpringSecurity方言
-        //SpringSecurityDialect securityDialect = new SpringSecurityDialect();
-        //templateEngine.addDialect(securityDialect);
+        SpringSecurityDialect securityDialect = new SpringSecurityDialect();
+        templateEngine.addDialect(securityDialect);
+
         return templateEngine;
     }
 

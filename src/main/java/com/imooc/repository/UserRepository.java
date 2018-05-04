@@ -8,10 +8,10 @@ import org.springframework.security.access.method.P;
 
 import com.imooc.entity.User;
 
-
+//jpa通过repository自动生成sql语句
 public interface UserRepository extends CrudRepository<User, Long> {
-//
-//    User findByName(String userName);
+
+    User findByName(String userName);
 //
 //    User findUserByPhoneNumber(String telephone);
 //

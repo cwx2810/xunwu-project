@@ -1,5 +1,7 @@
 package com.imooc.base;
 
+
+// 定义rest风格API
 public class ApiResponse {
     private int code;
     private String message;
