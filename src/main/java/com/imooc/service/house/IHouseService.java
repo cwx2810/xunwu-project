@@ -70,4 +70,13 @@ public interface IHouseService {
      * @return
      */
     ServiceResult removeTag(Long houseId, String tag);
+
+    /**
+     * 更新房源状态
+     * @param id
+     * @param status
+     * @return
+     */
+    ServiceResult updateStatus(Long id, int status);
+
 }
