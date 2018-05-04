@@ -1,10 +1,13 @@
 package com.imooc.web.controller.house;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import com.imooc.service.ServiceResult;
+import com.imooc.web.form.RentSearch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -17,22 +20,22 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.imooc.base.ApiResponse;
-//import com.imooc.base.RentValueBlock;
+import com.imooc.base.RentValueBlock;
 import com.imooc.entity.SupportAddress;
 import com.imooc.service.IUserService;
 //import com.imooc.service.ServiceResult;
-//import com.imooc.service.house.IHouseService;
+import com.imooc.service.house.IHouseService;
 //import com.imooc.service.search.HouseBucketDTO;
 //import com.imooc.service.search.ISearchService;
-//import com.imooc.web.dto.HouseDTO;
+import com.imooc.web.dto.HouseDTO;
 import com.imooc.web.dto.SubwayDTO;
 import com.imooc.service.ServiceMultiResult;
 import com.imooc.service.house.IAddressService;
 import com.imooc.web.dto.SubwayStationDTO;
 import com.imooc.web.dto.SupportAddressDTO;
 //import com.imooc.web.dto.UserDTO;
-//import com.imooc.web.form.MapSearch;
-//import com.imooc.web.form.RentSearch;
+import com.imooc.web.form.MapSearch;
+import com.imooc.web.form.RentSearch;
 
 /**
  * Created by 瓦力.
@@ -43,8 +46,8 @@ public class HouseController {
     @Autowired
     private IAddressService addressService;
 
-//    @Autowired
-//    private IHouseService houseService;
+    @Autowired
+    private IHouseService houseService;
 
 //    @Autowired
 //    private IUserService userService;
@@ -130,55 +133,75 @@ public class HouseController {
         return ApiResponse.ofSuccess(stationDTOS);
     }
 
-//    @GetMapping("rent/house")
-//    public String rentHousePage(@ModelAttribute RentSearch rentSearch,
-//                                Model model, HttpSession session,
-//                                RedirectAttributes redirectAttributes) {
-//        if (rentSearch.getCityEnName() == null) {
-//            String cityEnNameInSession = (String) session.getAttribute("cityEnName");
-//            if (cityEnNameInSession == null) {
-//                redirectAttributes.addAttribute("msg", "must_chose_city");
-//                return "redirect:/index";
-//            } else {
-//                rentSearch.setCityEnName(cityEnNameInSession);
-//            }
-//        } else {
-//            session.setAttribute("cityEnName", rentSearch.getCityEnName());
-//        }
-//
-//        ServiceResult<SupportAddressDTO> city = addressService.findCity(rentSearch.getCityEnName());
-//        if (!city.isSuccess()) {
-//            redirectAttributes.addAttribute("msg", "must_chose_city");
-//            return "redirect:/index";
-//        }
-//        model.addAttribute("currentCity", city.getResult());
-//
-//        ServiceMultiResult<SupportAddressDTO> addressResult = addressService.findAllRegionsByCityName(rentSearch.getCityEnName());
-//        if (addressResult.getResult() == null || addressResult.getTotal() < 1) {
-//            redirectAttributes.addAttribute("msg", "must_chose_city");
-//            return "redirect:/index";
-//        }
-//
-//        ServiceMultiResult<HouseDTO> serviceMultiResult = houseService.query(rentSearch);
-//
+    /**
+     * 前台 租房页面
+     * @param rentSearch
+     * @param model
+     * @param session
+     * @param redirectAttributes
+     * @return
+     */
+    @GetMapping("rent/house")
+    public String rentHousePage(@ModelAttribute RentSearch rentSearch,
+                                Model model, HttpSession session,
+                                RedirectAttributes redirectAttributes) {
+        //进入页面必须要有城市，在这判断有没有
+        if (rentSearch.getCityEnName() == null) {
+            //如果没有就去session中找
+            String cityEnNameInSession = (String) session.getAttribute("cityEnName");
+            //如果session中还是空的，就跳转，让用户必须选择城市
+            if (cityEnNameInSession == null) {
+                redirectAttributes.addAttribute("msg", "must_chose_city");
+                return "redirect:/index";
+            } else {
+                //如果session不空，就从session中获取
+                rentSearch.setCityEnName(cityEnNameInSession);
+            }
+        } else {
+            //如果城市不为空，就放进session中
+            session.setAttribute("cityEnName", rentSearch.getCityEnName());
+        }
+
+        //获取所有城市
+        ServiceResult<SupportAddressDTO> city = addressService.findCity(rentSearch.getCityEnName());
+        if (!city.isSuccess()) {
+            redirectAttributes.addAttribute("msg", "must_chose_city");
+            return "redirect:/index";
+        }
+        model.addAttribute("currentCity", city.getResult());
+
+        //获取所有的区域信息
+        ServiceMultiResult<SupportAddressDTO> addressResult = addressService.findAllRegionsByCityName(rentSearch.getCityEnName());
+        //如果是空，一样的，让用户必须选择城市
+        if (addressResult.getResult() == null || addressResult.getTotal() < 1) {
+            redirectAttributes.addAttribute("msg", "must_chose_city");
+            return "redirect:/index";
+        }
+
+        //查询房源
+        ServiceMultiResult<HouseDTO> serviceMultiResult = houseService.query(rentSearch);
+
+        //把查到的属性赋值给model
 //        model.addAttribute("total", serviceMultiResult.getTotal());
-//        model.addAttribute("houses", serviceMultiResult.getResult());
-//
-//        if (rentSearch.getRegionEnName() == null) {
-//            rentSearch.setRegionEnName("*");
-//        }
-//
-//        model.addAttribute("searchBody", rentSearch);
-//        model.addAttribute("regions", addressResult.getResult());
-//
-//        model.addAttribute("priceBlocks", RentValueBlock.PRICE_BLOCK);
-//        model.addAttribute("areaBlocks", RentValueBlock.AREA_BLOCK);
-//
-//        model.addAttribute("currentPriceBlock", RentValueBlock.matchPrice(rentSearch.getPriceBlock()));
-//        model.addAttribute("currentAreaBlock", RentValueBlock.matchArea(rentSearch.getAreaBlock()));
-//
-//        return "rent-list";
-//    }
+        model.addAttribute("total", 0);
+        model.addAttribute("houses", new ArrayList<>());
+
+        //如果拿到的区域名为空，就默认匹配所有的区域
+        if (rentSearch.getRegionEnName() == null) {
+            rentSearch.setRegionEnName("*");
+        }
+
+        model.addAttribute("searchBody", rentSearch);
+        model.addAttribute("regions", addressResult.getResult());
+
+        model.addAttribute("priceBlocks", RentValueBlock.PRICE_BLOCK);
+        model.addAttribute("areaBlocks", RentValueBlock.AREA_BLOCK);
+
+        model.addAttribute("currentPriceBlock", RentValueBlock.matchPrice(rentSearch.getPriceBlock()));
+        model.addAttribute("currentAreaBlock", RentValueBlock.matchArea(rentSearch.getAreaBlock()));
+
+        return "rent-list";
+    }
 
 //    @GetMapping("rent/house/show/{id}")
 //    public String show(@PathVariable(value = "id") Long houseId,

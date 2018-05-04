@@ -53,9 +53,9 @@ import com.imooc.web.dto.HousePictureDTO;
 import com.imooc.web.dto.HouseSubscribeDTO;
 import com.imooc.web.form.DatatableSearch;
 import com.imooc.web.form.HouseForm;
-//import com.imooc.web.form.MapSearch;
+import com.imooc.web.form.MapSearch;
 import com.imooc.web.form.PhotoForm;
-//import com.imooc.web.form.RentSearch;
+import com.imooc.web.form.RentSearch;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 
@@ -472,6 +472,27 @@ public class HouseServiceImpl implements IHouseService {
         houseDetail.setRentWay(houseForm.getRentWay());
         houseDetail.setRoundService(houseForm.getRoundService());
         houseDetail.setTraffic(houseForm.getTraffic());
+        return null;
+
+    }
+
+
+    /**
+     * 查询房源
+     * @param rentSearch
+     * @return
+     */
+    @Override
+    public ServiceMultiResult<HouseDTO> query(RentSearch rentSearch) {
+//        if (rentSearch.getKeywords() != null && !rentSearch.getKeywords().isEmpty()) {
+//            ServiceMultiResult<Long> serviceResult = searchService.query(rentSearch);
+//            if (serviceResult.getTotal() == 0) {
+//                return new ServiceMultiResult<>(0, new ArrayList<>());
+//            }
+//
+//            return new ServiceMultiResult<>(serviceResult.getTotal(), wrapperHouseResult(serviceResult.getResult()));
+//        }
+
         return null;
 
     }
