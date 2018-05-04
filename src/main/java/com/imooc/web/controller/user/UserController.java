@@ -23,7 +23,7 @@ import com.imooc.service.IUserService;
 //import com.imooc.web.dto.HouseDTO;
 //import com.imooc.web.dto.HouseSubscribeDTO;
 /**
- * Created by 瓦力.
+ *
  */
 @Controller
 public class UserController {
