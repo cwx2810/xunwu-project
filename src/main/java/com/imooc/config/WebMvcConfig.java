@@ -77,4 +77,13 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter implements Application
         return viewResolver;
     }
 
+    /**
+     * Bean Util
+     * @return
+     */
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
+
 }
