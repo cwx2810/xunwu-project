@@ -288,6 +288,96 @@ public class HouseServiceImpl implements IHouseService {
         return ServiceResult.of(result);
     }
 
+    /**
+     * 移除图片
+     * @param id
+     * @return
+     */
+    @Override
+    public ServiceResult removePhoto(Long id) {
+        HousePicture picture = housePictureRepository.findOne(id);
+        if (picture == null) {
+            return ServiceResult.notFound();
+        }
+
+        try {
+            Response response = this.qiNiuService.delete(picture.getPath());
+            if (response.isOK()) {
+                housePictureRepository.delete(id);
+                return ServiceResult.success();
+            } else {
+                return new ServiceResult(false, response.error);
+            }
+        } catch (QiniuException e) {
+            e.printStackTrace();
+            return new ServiceResult(false, e.getMessage());
+        }
+    }
+
+    /**
+     * 更新封面
+     * @param coverId
+     * @param targetId
+     * @return
+     */
+    @Override
+    @Transactional
+    public ServiceResult updateCover(Long coverId, Long targetId) {
+        HousePicture cover = housePictureRepository.findOne(coverId);
+        if (cover == null) {
+            return ServiceResult.notFound();
+        }
+
+        houseRepository.updateCover(targetId, cover.getPath());
+        return ServiceResult.success();
+    }
+
+    /**
+     * 增加标签
+     * @param houseId
+     * @param tag
+     * @return
+     */
+    @Override
+    @Transactional
+    public ServiceResult addTag(Long houseId, String tag) {
+        House house = houseRepository.findOne(houseId);
+        if (house == null) {
+            return ServiceResult.notFound();
+        }
+
+        HouseTag houseTag = houseTagRepository.findByNameAndHouseId(tag, houseId);
+        if (houseTag != null) {
+            return new ServiceResult(false, "标签已存在");
+        }
+
+        houseTagRepository.save(new HouseTag(houseId, tag));
+        return ServiceResult.success();
+    }
+
+    /**
+     * 删除标签
+     * @param houseId
+     * @param tag
+     * @return
+     */
+    @Override
+    @Transactional
+    public ServiceResult removeTag(Long houseId, String tag) {
+        House house = houseRepository.findOne(houseId);
+        if (house == null) {
+            return ServiceResult.notFound();
+        }
+
+        HouseTag houseTag = houseTagRepository.findByNameAndHouseId(tag, houseId);
+        if (houseTag == null) {
+            return new ServiceResult(false, "标签不存在");
+        }
+
+        houseTagRepository.delete(houseTag.getId());
+        return ServiceResult.success();
+    }
+
 
 
     /**
