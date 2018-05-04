@@ -51,7 +51,7 @@ import com.imooc.web.dto.HouseDTO;
 import com.imooc.web.dto.HouseDetailDTO;
 import com.imooc.web.dto.HousePictureDTO;
 import com.imooc.web.dto.HouseSubscribeDTO;
-//import com.imooc.web.form.DatatableSearch;
+import com.imooc.web.form.DatatableSearch;
 import com.imooc.web.form.HouseForm;
 //import com.imooc.web.form.MapSearch;
 import com.imooc.web.form.PhotoForm;
@@ -142,6 +142,29 @@ public class HouseServiceImpl implements IHouseService {
 
         return new ServiceResult<HouseDTO>(true, null, houseDTO);
     }
+
+
+    /**
+     * 查找房源
+     * @param searchBody
+     * @return
+     */
+    @Override
+    public ServiceMultiResult<HouseDTO> adminQuery(DatatableSearch searchBody) {
+
+        List<HouseDTO> houseDTOS = new ArrayList<>();
+
+        Iterable<House> houses = houseRepository.findAll();
+        houses.forEach(house -> {
+            HouseDTO houseDTO = modelMapper.map(house, HouseDTO.class);
+            houseDTO.setCover(this.cdnPrefix + house.getCover());
+            houseDTOS.add(houseDTO);
+        });
+
+        return new ServiceMultiResult<>(houseDTOS.size(), houseDTOS);
+    }
+
+
 
     /**
      * 图片对象列表信息填充

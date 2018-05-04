@@ -28,7 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
-//import com.imooc.base.ApiDataTableResponse;
+import com.imooc.base.ApiDataTableResponse;
 import com.imooc.base.ApiResponse;
 //import com.imooc.base.HouseOperation;
 //import com.imooc.base.HouseStatus;
@@ -48,7 +48,7 @@ import com.imooc.web.dto.SubwayDTO;
 import com.imooc.web.dto.SubwayStationDTO;
 import com.imooc.web.dto.SupportAddressDTO;
 //import com.imooc.web.dto.UserDTO;
-//import com.imooc.web.form.DatatableSearch;
+import com.imooc.web.form.DatatableSearch;
 import com.imooc.web.form.HouseForm;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
@@ -108,19 +108,19 @@ public class AdminController {
         return "admin/house-list";
     }
 
-//    @PostMapping("admin/houses")
-//    @ResponseBody
-//    public ApiDataTableResponse houses(@ModelAttribute DatatableSearch searchBody) {
-//        ServiceMultiResult<HouseDTO> result = houseService.adminQuery(searchBody);
-//
-//        ApiDataTableResponse response = new ApiDataTableResponse(ApiResponse.Status.SUCCESS);
-//        response.setData(result.getResult());
-//        response.setRecordsFiltered(result.getTotal());
-//        response.setRecordsTotal(result.getTotal());
-//
-//        response.setDraw(searchBody.getDraw());
-//        return response;
-//    }
+    @PostMapping("admin/houses")
+    @ResponseBody
+    public ApiDataTableResponse houses(@ModelAttribute DatatableSearch searchBody) {
+        ServiceMultiResult<HouseDTO> result = houseService.adminQuery(searchBody);
+
+        ApiDataTableResponse response = new ApiDataTableResponse(ApiResponse.Status.SUCCESS);
+        response.setData(result.getResult());
+        response.setRecordsFiltered(result.getTotal());
+        response.setRecordsTotal(result.getTotal());
+
+        response.setDraw(searchBody.getDraw());
+        return response;
+    }
 
     /**
      * 新增房源功能页
