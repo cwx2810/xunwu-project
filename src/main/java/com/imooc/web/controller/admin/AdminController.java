@@ -125,6 +125,8 @@ public class AdminController {
             return ApiResponse.ofStatus(ApiResponse.Status.INTERNAL_SERVER_ERROR);
         }
         return ApiResponse.ofSuccess(null);
+
+        //七牛云相关
 //        try {
 //            InputStream inputStream = file.getInputStream();
 //            Response response = qiNiuService.uploadFile(inputStream);
