@@ -182,9 +182,8 @@ public class HouseController {
         ServiceMultiResult<HouseDTO> serviceMultiResult = houseService.query(rentSearch);
 
         //把查到的属性赋值给model
-//        model.addAttribute("total", serviceMultiResult.getTotal());
-        model.addAttribute("total", 0);
-        model.addAttribute("houses", new ArrayList<>());
+        model.addAttribute("total", serviceMultiResult.getTotal());
+        model.addAttribute("houses", serviceMultiResult.getResult());
 
         //如果拿到的区域名为空，就默认匹配所有的区域
         if (rentSearch.getRegionEnName() == null) {
