@@ -93,6 +93,11 @@ public class HouseServiceImpl implements IHouseService {
     @Value("${qiniu.cdn.prefix}")
     private String cdnPrefix;
 
+    /**
+     * 新增房源
+     * @param houseForm
+     * @return
+     */
     @Override
     public ServiceResult<HouseDTO> save(HouseForm houseForm) {
 
@@ -143,9 +148,52 @@ public class HouseServiceImpl implements IHouseService {
         return new ServiceResult<HouseDTO>(true, null, houseDTO);
     }
 
+    /**
+     * 编辑后更新房源
+     * @param houseForm
+     * @return
+     */
+    @Override
+    @Transactional
+    public ServiceResult update(HouseForm houseForm) {
+        House house = this.houseRepository.findOne(houseForm.getId());
+        if (house == null) {
+            return ServiceResult.notFound();
+        }
+
+        HouseDetail detail = this.houseDetailRepository.findByHouseId(house.getId());
+        if (detail == null) {
+            return ServiceResult.notFound();
+        }
+
+        ServiceResult wrapperResult = wrapperDetailInfo(detail, houseForm);
+        if (wrapperResult != null) {
+            return wrapperResult;
+        }
+
+        houseDetailRepository.save(detail);
+
+        List<HousePicture> pictures = generatePictures(houseForm, houseForm.getId());
+        housePictureRepository.save(pictures);
+
+        if (houseForm.getCover() == null) {
+            houseForm.setCover(house.getCover());
+        }
+
+        modelMapper.map(houseForm, house);
+        house.setLastUpdateTime(new Date());
+        houseRepository.save(house);
+
+//        if (house.getStatus() == HouseStatus.PASSES.getValue()) {
+//            searchService.index(house.getId());
+//        }
+
+        return ServiceResult.success();
+    }
+
 
     /**
-     * 查找房源
+     * 查找所有房源
      * @param searchBody
      * @return
      */
@@ -194,6 +242,50 @@ public class HouseServiceImpl implements IHouseService {
         });
 
         return new ServiceMultiResult<>(houses.getTotalElements(), houseDTOS);
+    }
+
+    /**
+     * 查询单个房源完整信息
+     * @param id
+     * @return
+     */
+    @Override
+    public ServiceResult<HouseDTO> findCompleteOne(Long id) {
+        House house = houseRepository.findOne(id);
+        if (house == null) {
+            return ServiceResult.notFound();
+        }
+
+        HouseDetail detail = houseDetailRepository.findByHouseId(id);
+        List<HousePicture> pictures = housePictureRepository.findAllByHouseId(id);
+
+        HouseDetailDTO detailDTO = modelMapper.map(detail, HouseDetailDTO.class);
+        List<HousePictureDTO> pictureDTOS = new ArrayList<>();
+        for (HousePicture picture : pictures) {
+            HousePictureDTO pictureDTO = modelMapper.map(picture, HousePictureDTO.class);
+            pictureDTOS.add(pictureDTO);
+        }
+
+
+        List<HouseTag> tags = houseTagRepository.findAllByHouseId(id);
+        List<String> tagList = new ArrayList<>();
+        for (HouseTag tag : tags) {
+            tagList.add(tag.getName());
+        }
+
+        HouseDTO result = modelMapper.map(house, HouseDTO.class);
+        result.setHouseDetail(detailDTO);
+        result.setPictures(pictureDTOS);
+        result.setTags(tagList);
+
+        if (LoginUserUtil.getLoginUserId() > 0) { // 已登录用户
+            HouseSubscribe subscribe = subscribeRespository.findByHouseIdAndUserId(house.getId(), LoginUserUtil.getLoginUserId());
+            if (subscribe != null) {
+                result.setSubscribeStatus(subscribe.getStatus());
+            }
+        }
+
+        return ServiceResult.of(result);
     }
 
 
