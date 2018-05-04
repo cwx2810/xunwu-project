@@ -14,14 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
-//import com.imooc.base.LoginUserUtil;
+import com.imooc.base.LoginUserUtil;
 import com.imooc.entity.Role;
 import com.imooc.entity.User;
 import com.imooc.repository.RoleRepository;
 import com.imooc.repository.UserRepository;
 import com.imooc.service.IUserService;
-//import com.imooc.service.ServiceResult;
-//import com.imooc.web.dto.UserDTO;
+import com.imooc.service.ServiceResult;
+import com.imooc.web.dto.UserDTO;
 
 /**
  * Created by 瓦力.
@@ -33,9 +33,9 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private RoleRepository roleRepository;//获取用户权限
-//
-//    @Autowired
-//    private ModelMapper modelMapper;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
 //    private final Md5PasswordEncoder passwordEncoder = new Md5PasswordEncoder();
 
@@ -59,16 +59,16 @@ public class UserServiceImpl implements IUserService {
         return user;
     }
 
-//    @Override
-//    public ServiceResult<UserDTO> findById(Long userId) {
-//        User user = userRepository.findOne(userId);
-//        if (user == null) {
-//            return ServiceResult.notFound();
-//        }
-//        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-//        return ServiceResult.of(userDTO);
-//    }
-//
+    @Override
+    public ServiceResult<UserDTO> findById(Long userId) {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            return ServiceResult.notFound();
+        }
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        return ServiceResult.of(userDTO);
+    }
+
 //    @Override
 //    public User findUserByTelephone(String telephone) {
 //        User user = userRepository.findUserByPhoneNumber(telephone);

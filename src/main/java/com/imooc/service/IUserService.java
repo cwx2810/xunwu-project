@@ -1,16 +1,27 @@
 package com.imooc.service;
 
 import com.imooc.entity.User;
-//import com.imooc.web.dto.UserDTO;
+import com.imooc.web.dto.UserDTO;
 
 /**
  * 用户服务
- * Created by 瓦力.
+ *
  */
 public interface IUserService {
+
+    /**
+     * 根据用户名寻找用户
+     * @param userName
+     * @return
+     */
     User findUserByName(String userName);
 
-//    ServiceResult<UserDTO> findById(Long userId);
+    /**
+     * 根据id寻找用户
+     * @param userId
+     * @return
+     */
+    ServiceResult<UserDTO> findById(Long userId);
 //
 //    /**
 //     * 根据电话号码寻找用户

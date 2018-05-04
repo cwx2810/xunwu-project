@@ -23,7 +23,7 @@ import com.imooc.base.ApiResponse;
 import com.imooc.base.RentValueBlock;
 import com.imooc.entity.SupportAddress;
 import com.imooc.service.IUserService;
-//import com.imooc.service.ServiceResult;
+import com.imooc.service.ServiceResult;
 import com.imooc.service.house.IHouseService;
 //import com.imooc.service.search.HouseBucketDTO;
 //import com.imooc.service.search.ISearchService;
@@ -33,7 +33,7 @@ import com.imooc.service.ServiceMultiResult;
 import com.imooc.service.house.IAddressService;
 import com.imooc.web.dto.SubwayStationDTO;
 import com.imooc.web.dto.SupportAddressDTO;
-//import com.imooc.web.dto.UserDTO;
+import com.imooc.web.dto.UserDTO;
 import com.imooc.web.form.MapSearch;
 import com.imooc.web.form.RentSearch;
 
@@ -49,8 +49,8 @@ public class HouseController {
     @Autowired
     private IHouseService houseService;
 
-//    @Autowired
-//    private IUserService userService;
+    @Autowired
+    private IUserService userService;
 
 //    @Autowired
 //    private ISearchService searchService;
@@ -202,37 +202,47 @@ public class HouseController {
         return "rent-list";
     }
 
-//    @GetMapping("rent/house/show/{id}")
-//    public String show(@PathVariable(value = "id") Long houseId,
-//                       Model model) {
-//        if (houseId <= 0) {
-//            return "404";
-//        }
-//
-//        ServiceResult<HouseDTO> serviceResult = houseService.findCompleteOne(houseId);
-//        if (!serviceResult.isSuccess()) {
-//            return "404";
-//        }
-//
-//        HouseDTO houseDTO = serviceResult.getResult();
-//        Map<SupportAddress.Level, SupportAddressDTO>
-//                addressMap = addressService.findCityAndRegion(houseDTO.getCityEnName(), houseDTO.getRegionEnName());
-//
-//        SupportAddressDTO city = addressMap.get(SupportAddress.Level.CITY);
-//        SupportAddressDTO region = addressMap.get(SupportAddress.Level.REGION);
-//
-//        model.addAttribute("city", city);
-//        model.addAttribute("region", region);
-//
-//        ServiceResult<UserDTO> userDTOServiceResult = userService.findById(houseDTO.getAdminId());
-//        model.addAttribute("agent", userDTOServiceResult.getResult());
-//        model.addAttribute("house", houseDTO);
-//
+    /**
+     * 房源信息详情页面
+     * @param houseId
+     * @param model
+     * @return
+     */
+    @GetMapping("rent/house/show/{id}")
+    public String show(@PathVariable(value = "id") Long houseId,
+                       Model model) {
+        //如果id不正常，返回404
+        if (houseId <= 0) {
+            return "404";
+        }
+        //如果id正常，就查询
+        ServiceResult<HouseDTO> serviceResult = houseService.findCompleteOne(houseId);
+        //如果没有找到，返回404
+        if (!serviceResult.isSuccess()) {
+            return "404";
+        }
+        //找到了，获得查询结果保存到dto
+        HouseDTO houseDTO = serviceResult.getResult();
+        //在查询城市和区域的具体信息
+        Map<SupportAddress.Level, SupportAddressDTO>
+                addressMap = addressService.findCityAndRegion(houseDTO.getCityEnName(), houseDTO.getRegionEnName());
+        //查出来赋给dto
+        SupportAddressDTO city = addressMap.get(SupportAddress.Level.CITY);
+        SupportAddressDTO region = addressMap.get(SupportAddress.Level.REGION);
+        //把数据渲染进model
+        model.addAttribute("city", city);
+        model.addAttribute("region", region);
+
+        ServiceResult<UserDTO> userDTOServiceResult = userService.findById(houseDTO.getAdminId());
+        model.addAttribute("agent", userDTOServiceResult.getResult());
+        model.addAttribute("house", houseDTO);
+
 //        ServiceResult<Long> aggResult = searchService.aggregateDistrictHouse(city.getEnName(), region.getEnName(), houseDTO.getDistrict());
-//        model.addAttribute("houseCountInDistrict", aggResult.getResult());
-//
-//        return "house-detail";
-//    }
+        //聚合数据
+        model.addAttribute("houseCountInDistrict", 0);
+
+        return "house-detail";
+    }
 
 //    @GetMapping("rent/house/map")
 //    public String rentMapPage(@RequestParam(value = "cityEnName") String cityEnName,
